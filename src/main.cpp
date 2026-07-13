@@ -1,6 +1,12 @@
 #include <iostream>
+#include "windows_layer/windows_manager.h"
+
 
 int main(){
-    std::cout << "dsd";
+    Window myWindow(680, 840, "HELLOW_WORLD");
+
+    while(!myWindow.ShouldClose()){
+        myWindow.PollEvents();
+    }
     return 0;
 }

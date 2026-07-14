@@ -25,6 +25,7 @@ int main(){
         throw std::runtime_error("FAILED TO CREATE VULCAN INSTANCE!");
     }
 
+
     // Step 2: change a videocard 
 
     uint32_t deviceCount = 0; 
@@ -34,6 +35,26 @@ int main(){
     vkEnumeratePhysicalDevices(instance, &deviceCount, gpu_list.data());
 
     VkPhysicalDevice physicalDevice = gpu_list[0];
+
+
+    // Step 3: 
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+    int graphicsFamilyIndex = -1;
+
+    for(int x=0; x<queueFamilyCount; x++){
+        if(queueFamilies[x].queueFlags & VK_QUEUE_GRAPHICS_BIT){
+            graphicsFamilyIndex = x;
+            break;
+        }
+    }
+
+    std::cout << "Шаг 3 пройден! Графическая очередь найдена под индексом: " << graphicsFamilyIndex << std::endl;
 
     // LOOP
 

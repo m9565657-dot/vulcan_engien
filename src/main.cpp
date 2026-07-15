@@ -6,6 +6,7 @@
 
 int main(){
     Window myWindow(680, 840, "HELLOW_WORLD");
+    std::vector<const char*> extensions = myWindow.GetRequiredExtensions();
 
     // Step 1: Vulkan Instance 
 
@@ -17,6 +18,9 @@ int main(){
     VkInstanceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
+    createInfo.enabledLayerCount = 0;
 
     VkInstance instance;
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
@@ -81,6 +85,11 @@ int main(){
         throw std::runtime_error("vkDeviceCreate failed");
     }
 
+    //Step 5:
+
+    VkSurfaceKHR surface;
+    myWindow.CreateWindowSurface(instance, &surface);
+
     // LOOP
 
     while(!myWindow.ShouldClose()){
@@ -88,6 +97,7 @@ int main(){
     }
 
     vkDestroyDevice(device, nullptr);
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
     return 0;
 }

@@ -1,7 +1,8 @@
 #pragma once
-
+#include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <vector>
 
 class Window {
     public: 
@@ -10,6 +11,9 @@ class Window {
 
         bool ShouldClose() {return glfwWindowShouldClose(m_window);}
         void PollEvents() {glfwPollEvents();}
+
+        std::vector<const char*> GetRequiredExtensions();
+        void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
     private:
         void InitWindow();

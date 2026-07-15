@@ -25,3 +25,16 @@ Window::~Window() {
     glfwTerminate();
 }
 
+std::vector<const char*> Window::GetRequiredExtensions(){
+    uint32_t glfwExtensionCout = 0;
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCout);
+    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCout);
+    return extensions;
+}
+
+void Window::CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface){
+    VkResult surface_result = glfwCreateWindowSurface(instance, m_window, nullptr, surface);
+    if(surface_result != VK_SUCCESS){
+        throw std::runtime_error("glfwCreateSurface failed"); 
+    }
+}

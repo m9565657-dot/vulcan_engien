@@ -56,12 +56,38 @@ int main(){
 
     std::cout << "Шаг 3 пройден! Графическая очередь найдена под индексом: " << graphicsFamilyIndex << std::endl;
 
+    // Step 4:
+
+    VkDeviceQueueCreateInfo queueCreateInfo{};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex =  graphicsFamilyIndex;
+    queueCreateInfo.queueCount = 1;
+
+    float queueProperties = 1.0f;
+    queueCreateInfo.pQueuePriorities = &queueProperties;
+
+    VkPhysicalDeviceFeatures deviceFeaturs{};
+    VkDeviceCreateInfo deviceCreateInfo{};
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+    deviceCreateInfo.pEnabledFeatures = &deviceFeaturs;
+    deviceCreateInfo.enabledExtensionCount = 0;
+    
+    VkDevice device; 
+    VkResult device_result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
+
+    if(device_result != VK_SUCCESS){
+        throw std::runtime_error("vkDeviceCreate failed");
+    }
+
     // LOOP
 
     while(!myWindow.ShouldClose()){
         myWindow.PollEvents();
     }
 
+    vkDestroyDevice(device, nullptr);
     vkDestroyInstance(instance, nullptr);
     return 0;
 }

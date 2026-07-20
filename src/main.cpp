@@ -92,7 +92,7 @@ int main(){
     VkSurfaceKHR surface;
     myWindow.CreateWindowSurface(instance, &surface);
 
-    //Step 6: 
+    //Step 6: Create Vulkan Swapchain 
 
     VkSwapchainCreateInfoKHR swapChainCreateInfo{};
     swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -120,10 +120,41 @@ int main(){
 
     std::vector<VkImage> swapChainImages(ImageCount);
     vkGetSwapchainImagesKHR(device, swapChain, &ImageCount, swapChainImages.data());
+
+    // Step 7: Create SwapChainWiews
+
+    std::vector<VkImageView> swapChainViews(swapChainImages.size());
+
+    for(size_t i=0; i<swapChainImages.size(); i++){
+        VkImageViewCreateInfo viewCreateInfo{};
+        viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewCreateInfo.image = swapChainImages[i];
+        viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewCreateInfo.format = VK_FORMAT_B8G8R8A8_SRGB;
+        viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewCreateInfo.subresourceRange.baseMipLevel = 0;
+        viewCreateInfo.subresourceRange.levelCount = 1; 
+        viewCreateInfo.subresourceRange.baseArrayLayer = 0;
+        viewCreateInfo.subresourceRange.layerCount = 1;
+
+        VkResult view_result = vkCreateImageView(device, &viewCreateInfo, nullptr, &swapChainViews[i]);
+        if(view_result != VK_SUCCESS){
+            throw std::runtime_error("ImageView Create Failed");
+        }
+
+    }
     // LOOP
 
     while(!myWindow.ShouldClose()){
         myWindow.PollEvents();
+    }
+
+    for(size_t b=0; b<swapChainImages.size(); b++){
+        vkDestroyImageView(device, swapChainViews[b], nullptr);
     }
     vkDestroySwapchainKHR(device, swapChain, nullptr);
     vkDestroyDevice(device, nullptr);

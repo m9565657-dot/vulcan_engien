@@ -76,8 +76,10 @@ int main(){
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
     deviceCreateInfo.pEnabledFeatures = &deviceFeaturs;
-    deviceCreateInfo.enabledExtensionCount = 0;
-    
+    const char* deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    deviceCreateInfo.enabledExtensionCount = 1;
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
+
     VkDevice device; 
     VkResult device_result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
 
@@ -90,12 +92,40 @@ int main(){
     VkSurfaceKHR surface;
     myWindow.CreateWindowSurface(instance, &surface);
 
+    //Step 6: 
+
+    VkSwapchainCreateInfoKHR swapChainCreateInfo{};
+    swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapChainCreateInfo.surface = surface;
+    swapChainCreateInfo.minImageCount = 2; 
+    swapChainCreateInfo.imageExtent = VkExtent2D{680, 840};
+    swapChainCreateInfo.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+    swapChainCreateInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+    swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    swapChainCreateInfo.queueFamilyIndexCount = 0;
+    swapChainCreateInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    swapChainCreateInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+    swapChainCreateInfo.clipped = VK_TRUE;
+    swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
+
+    VkSwapchainKHR swapChain;
+    if(vkCreateSwapchainKHR(device, &swapChainCreateInfo, nullptr, &swapChain) != VK_SUCCESS){
+        throw std::runtime_error("FAILED TO CREATE SWAPCHAIN");
+    };
+
+    uint32_t ImageCount = 0; 
+    vkGetSwapchainImagesKHR(device, swapChain, &ImageCount, nullptr);
+
+    std::vector<VkImage> swapChainImages(ImageCount);
+    vkGetSwapchainImagesKHR(device, swapChain, &ImageCount, swapChainImages.data());
     // LOOP
 
     while(!myWindow.ShouldClose()){
         myWindow.PollEvents();
     }
-
+    vkDestroySwapchainKHR(device, swapChain, nullptr);
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
